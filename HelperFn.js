@@ -16,7 +16,7 @@
   CopyDefaults = function(Default, UserSpecific, type){
     var Keys, i$, len$, I, results$ = [];
     type == null && (type = "merge-right");
-    Keys = lo.keys(Default);
+    Keys = Object.keys(Default);
     for (i$ = 0, len$ = Keys.length; i$ < len$; ++i$) {
       I = Keys[i$];
       if (UserSpecific[I] === undefined) {

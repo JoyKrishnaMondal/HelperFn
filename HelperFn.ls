@@ -1,3 +1,5 @@
+
+
 ForList = (Default,UserSpecific,type = "merge-right") ->
 
 	switch type
@@ -10,7 +12,7 @@ ForList = (Default,UserSpecific,type = "merge-right") ->
 
 CopyDefaults = (Default,UserSpecific,type = "merge-right")->
 
-	Keys = lo.keys Default
+	Keys = Object.keys Default
 
 	for I in Keys
 
