@@ -1,0 +1,19 @@
+{
+  "name": "helperfn",
+  "version": "1.0.0",
+  "description": "",
+  "main": "HelperFn.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoyKrishnaMondal/HelperFn.git"
+  },
+  "author": "Joy Krishna Mondal",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JoyKrishnaMondal/HelperFn/issues"
+  },
+  "homepage": "https://github.com/JoyKrishnaMondal/HelperFn#readme"
+}
