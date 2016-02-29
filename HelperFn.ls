@@ -48,6 +48,8 @@ CopyDefaults = (Default,UserSpecific,type = "merge-right")->
 
 
 
+Main = {}
+
 Main.ShowList = (List) -> console.log JSON.stringify List,null,"\t"
 
 Main.CopyDefaults = CopyDefaults
