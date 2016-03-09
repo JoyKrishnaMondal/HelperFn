@@ -1,3 +1,6 @@
+ShowList = (List) -> console.log JSON.stringify List,null,"\t"
+
+
 ForList = (Default,UserSpecific,type = "merge-right") ->
 
 	switch type
@@ -14,46 +17,70 @@ CopyDefaults = (Default,UserSpecific,type = "merge-right")->
 
 	for I in Keys
 
-		if UserSpecific[I] is undefined
+			if (UserSpecific[I] is undefined) or (UserSpecific[I] is null)
 
-			if (typeof Default[I]) is "object"
+				if (typeof Default[I]) is "object"
 
-				if Array.isArray Default[I]
+					if Array.isArray Default[I]
 
-					UserSpecific[I] = []
+						UserSpecific[I] = []
 
-					UserSpecific[I] = ForList Default[I],UserSpecific[I],type
+						UserSpecific[I] = ForList Default[I],UserSpecific[I],type
+
+					else
+
+						if not (Default[I] is null)
+							UserSpecific[I] = {}
+
+							CopyDefaults Default[I],UserSpecific[I]
 
 				else
 
-					UserSpecific[I] = {}
 
-					CopyDefaults Default[I],UserSpecific[I]
+					UserSpecific[I] = Default[I]
 
 			else
 
-				UserSpecific[I] = Default[I]
+				if (typeof Default[I]) is "object"
 
-		else
+					if Array.isArray Default[I]
 
-			if (typeof Default[I]) is "object"
+						UserSpecific[I] = ForList Default[I],UserSpecific[I],type
 
-				if Array.isArray Default[I]
+					else
 
-					UserSpecific[I] = ForList Default[I],UserSpecific[I],type
+						if not (Default[I] is null)
 
-				else
+							CopyDefaults Default[I],UserSpecific[I]
 
-					CopyDefaults Default[I],UserSpecific[I]
 
 CreateNewFn = (OldFn,Custom) -> (EventOb) -> 
 
-	Output = Custom EventOb
+	Custom EventOb
 
-	if Output is undefined
-		OldFn EventOb
-	else
-		OldFn EventOb,Output
+	OldFn EventOb
+
+	return
+
+SingleCompose = (Elem,Custom) ->
+
+	for I in (Object.keys Custom)
+
+		CurrentElem = Elem[I]
+
+		if (CurrentElem is undefined) or (CurrentElem is null)
+
+			Elem[I] = Custom[I]
+
+		else
+
+			OldFn = Elem[I]
+
+			NewFn = CreateNewFn OldFn,Custom[I]
+ 
+			Elem[I] = NewFn
+
+	return
 
 Compose = (Elem,Custom,type) ->
 
@@ -67,31 +94,68 @@ Compose = (Elem,Custom,type) ->
 
 	else
 
-		for I in (Object.keys Custom)
+		SingleCompose Elem[type],Custom
 
-			if Elem[type][I] is undefined
+	return
 
-				Elem[type][I] = Custom[I]
 
-			else
 
-				OldFn = Elem[type][I]
+Normalize = (EventName) ->
 
-				NewFn = CreateNewFn OldFn,Custom[I]
- 
-				Elem[type][I] = NewFn
+	TypeOfEvent = typeof EventName
 
-Events = (update) -> (EventName) -> ->
+	switch TypeOfEvent
 
-	if arguments.length is 1
-			update EventName,arguments[0]
+	| "string" => 
+
+		Output = [(eventName:EventName,children:[])]
+
+	| "object" => 
+
+		if Array.isArray EventName
+
+			Output = []
+
+			for I in EventName
+
+				Output.push Normalize I
+
+		else
+
+			Child = Normalize EventName.children
+
+			EventName.children = Child
+
+			Output = EventName
+
+	Output
+
+Events = (update) -> (EventName) ->
+
+	EventName = Normalize EventName
+
+	(EventOb) ->
+
+		for I in EventName
+			update I,arguments[0]
+
+eventReact = (Model) -> 
+	
+	{onchange} = Model
+
+	if (onchange is null) or (onchange is undefined)
+
+		return
 
 	else
-			update arguments[0],arguments[1]
 
+		if Array.isArray onchange
+			for I in onchange
+				I Model
+		else
+			onchange Model
 
-
-ShowList = (List) -> console.log JSON.stringify List,null,"\t"
+	return
 
 
 TM = require "gsap"
@@ -122,8 +186,12 @@ Main.ShowList = ShowList
 
 Main.CopyDefaults = CopyDefaults
 
+Main.SingleCompose = SingleCompose
+
 Main.Compose = Compose
 
 Main.Events = Events
+
+Main.eventReact = eventReact
 
 module.exports = Main
